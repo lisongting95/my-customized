@@ -35,6 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
   var scale = MediaQueryData.fromWindow(ui.window).devicePixelRatio;//每一个逻辑像素包含多少个原始像素
   var statusBar = MediaQueryData.fromWindow(ui.window).padding.top;//状态栏高度
 
+
+
   var data = {
     ['等价无穷小','sin x','x'],
     ['等价无穷小','cos x','x'],
@@ -54,8 +56,103 @@ class _MyHomePageState extends State<MyHomePage> {
     ['泰勒公式','1/(1-x)','x + x^2 + x^3 + x^4 (|x|<1)'],
   };
 
+  TextEditingController _unameController=new TextEditingController();
+
+  void _toTestPage() {
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+        builder: (context) {
+          return new Scaffold(
+            appBar: new AppBar(
+              title: new Text('Test Page'),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+              child: Form(
+                // key: _formKey, //设置globalKey，用于后面获取FormState
+                autovalidate: true, //开启自动校验
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                        autofocus: false,
+                        controller: _unameController,
+                        decoration: InputDecoration(
+                            labelText: "用户名",
+                            hintText: "用户名或邮箱",
+                            icon: Icon(Icons.person)
+                        ),
+                        // 校验用户名
+                        validator: (v) {
+                          return v
+                              .trim()
+                              .length > 0 ? null : "用户名不能为空";
+                        }
+
+                    ),
+                    TextFormField(
+                        // controller: _pwdController,
+                        decoration: InputDecoration(
+                            labelText: "密码",
+                            hintText: "您的登录密码",
+                            icon: Icon(Icons.lock)
+                        ),
+                        obscureText: true,
+                        //校验密码
+                        validator: (v) {
+                          return v
+                              .trim()
+                              .length > 5 ? null : "密码不能少于6位";
+                        }
+                    ),
+                    // 登录按钮
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28.0),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: RaisedButton(
+                              padding: EdgeInsets.all(15.0),
+                              child: Text("登录"),
+                              color: Theme
+                                  .of(context)
+                                  .primaryColor,
+                              textColor: Colors.white,
+                              onPressed: () {
+                                //在这里不能通过此方式获取FormState，context不对
+                                //print(Form.of(context));
+
+                                // 通过_formKey.currentState 获取FormState后，
+                                // 调用validate()方法校验用户名密码是否合法，校验
+                                // 通过后再提交数据。 
+                                // if((_formKey.currentState as FormState).validate()){
+                                //   //验证通过提交数据
+                                // }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Expressions exp = new Expressions('泰勒公式', '1/(1-x)', 'x + x^2 + x^3 + x^4 (|x|<1)');
   bool isShowAnswer = false;
+
+  @override
+  void initState(){
+    super.initState();
+    _unameController.addListener((){
+      print(_unameController.text);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +160,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: <Widget>[
+          new IconButton(icon: new Icon(Icons.list), onPressed: _toTestPage),
+        ],
       ),
       body: Container(
-        height: double.infinity,
+        height: screenHeight-statusBar-56,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
